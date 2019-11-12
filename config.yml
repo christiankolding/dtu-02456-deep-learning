@@ -1,0 +1,18 @@
+language_model_base:
+    emsize: 400
+    nhid: 800
+    nlayers: 3
+    lr: 0.001
+    clip: 0.25
+    epochs: 10
+    batch_size: 20
+    bptt: 35
+    dropout: 0.2
+    tied: False
+    save: 'model.pt'
+
+text_generation_base:
+    checkpoint: 'model.pt'
+    outf: 'generated.txt'
+    words: 1000
+    temperature: 1
