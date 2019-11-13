@@ -8,8 +8,9 @@ language_model_base:
     batch_size: 20
     bptt: 35
     dropout: 0.2
-    tied: False
+    weight_tying: true
     save: 'model.pt'
+    weight_drop: 0.5
 
 text_generation_base:
     checkpoint: 'model.pt'
