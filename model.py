@@ -15,7 +15,7 @@ class WD_LSTM(nn.Module):
         self.drop = nn.Dropout(dropout)
         self.encoder = nn.Embedding(ntoken, ninp)
         self.rnns = nn.ModuleList(
-            [WeightDrop(nn.LSTM(get_input_size(i), self.get_hidden_size(i)), ["weight_hh_l0"], weight_drop) for i in range(nlayers)]
+            [WeightDrop(nn.LSTM(self.get_input_size(i), self.get_hidden_size(i)), ["weight_hh_l0"], weight_drop) for i in range(nlayers)]
         )
         self.decoder = nn.Linear(nhid, ntoken)
         if self.weight_tying:
@@ -24,13 +24,13 @@ class WD_LSTM(nn.Module):
 
     def get_input_size(self, layer_num):
         """ The first LSTM layer must match the embedding size. """
-        return self.ninp if layer_num == 0 else self.nhid
+        if layer_num == 0:
+            return self.ninp
+        return self.nhid
         
     def get_hidden_size(self, layer_num):
-        """ If using weight tying, the hidden size in the last LSTM layer must match the embedding size. """
-        if not self.weight_tying:  # only matters if we use weight tying
-            return self.nhid
-        if layer_num != self.nlayers - 1:  # this is the first LSTM layer
+        """ The hidden size in the last LSTM layer must match the embedding size. """
+        if layer_num == self.nlayers - 1:
             return self.ninp
         return self.nhid
         
