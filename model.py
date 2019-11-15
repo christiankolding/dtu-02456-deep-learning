@@ -44,11 +44,14 @@ class WD_LSTM(nn.Module):
         emb = self.drop(self.encoder(input))
         outputs = []
         new_hiddens = []
-        for rnn, hidden in zip(self.rnns, hiddens):
+        # LSTM module has been split up, since weight tying requires different hidden sizes.
+        # Therefore we need to manage the forward propagation ourselves.
+        for rnn, hidden in zip(self.rnns, hiddens):  
             output, new_hidden = rnn(emb if not outputs else outputs[-1], hidden)
             outputs.append(output)
             new_hiddens.append(new_hidden)
         output = self.drop(output)
+        result = output.view(output.size(0) * output.size(1), output.size(2))
         decoded = self.decoder(output)
         return decoded, new_hiddens
 

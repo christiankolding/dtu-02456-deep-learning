@@ -2,11 +2,16 @@ language_model_base:
     emsize: 400
     nhid: 800
     nlayers: 3
-    lr: 0.001
+    lr: 0.002
     clip: 0.25
-    epochs: 10
+    epochs: 20
     batch_size: 20
-    bptt: 35
+    bptt_seq_len: 70
+    bptt_random_scaling: 2.0
+    bptt_p: 0.95
+    bptt_s: 5
+    bptt_min_len: 5
+    bptt_max_len: 80
     dropout: 0.2
     weight_tying: true
     save: 'model.pt'
