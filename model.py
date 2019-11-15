@@ -51,7 +51,6 @@ class WD_LSTM(nn.Module):
             outputs.append(output)
             new_hiddens.append(new_hidden)
         output = self.drop(output)
-        result = output.view(output.size(0) * output.size(1), output.size(2))
         decoded = self.decoder(output)
         return decoded, new_hiddens
 
