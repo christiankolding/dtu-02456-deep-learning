@@ -3,6 +3,7 @@ language_model_base:
     nhid: 800
     nlayers: 3
     lr: 0.002
+    weight_decay: 0.00001
     clip: 0.25
     epochs: 20
     batch_size: 20
