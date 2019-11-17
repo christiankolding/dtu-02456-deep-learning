@@ -23,3 +23,9 @@ text_generation_base:
     outf: 'generated.txt'
     words: 1000
     temperature: 1
+    
+text_generation_beam_search:
+    checkpoint: 'model.pt'
+    outf: 'generated_beam.txt'
+    words: 1
+    beam_size: 500
