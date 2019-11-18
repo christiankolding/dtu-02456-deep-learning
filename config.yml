@@ -27,5 +27,5 @@ text_generation_base:
 text_generation_beam_search:
     checkpoint: 'model.pt'
     outf: 'generated_beam.txt'
-    words: 1
-    beam_size: 500
+    words: 50
+    beam_size: 100
