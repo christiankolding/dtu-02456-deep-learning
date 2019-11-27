@@ -5,16 +5,20 @@ language_model_base:
     lr: 0.002
     weight_decay: 0.00002
     clip: 0.25
-    epochs: 80
-    batch_size: 20
+    epochs: 100
+    batch_size: 40
+    eval_batch_size: 10
+    test_batch_size: 1
     bptt_seq_len: 70
     bptt_random_scaling: 2.0
     bptt_p: 0.95
     bptt_s: 5
     bptt_min_len: 5
-    bptt_max_len: 80
+    bptt_max_len: 1000
     dropout: 0.4
-    dropout_h: 0.3
+    dropout_i: 0.4
+    dropout_e: 0.1
+    dropout_h: 0.25
     weight_tying: true
     save: 'model.pt'
     weight_drop: 0.5

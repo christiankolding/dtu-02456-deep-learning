@@ -8,7 +8,7 @@ from embedding_dropout import embedding_dropout
 
 class WD_LSTM(nn.Module):
 
-    def __init__(self, ntoken, ninp, nhid, nlayers, dropout=0.4, dropout_h=0.3, dropout_i=0.65, dropout_e=0.1, weight_drop=0, weight_tying=False):
+    def __init__(self, ntoken, ninp, nhid, nlayers, dropout, dropout_h, dropout_i, dropout_e, weight_drop=0, weight_tying=False):
         super().__init__()
         self.ninp = ninp
         self.nhid = nhid
