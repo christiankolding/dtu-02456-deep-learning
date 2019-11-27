@@ -3,21 +3,27 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from weight_drop import WeightDrop
+from variational_dropout import VariationalDropout
+from embedding_dropout import embedding_dropout
 
 class WD_LSTM(nn.Module):
 
-    def __init__(self, ntoken, ninp, nhid, nlayers, dropout=0.5, weight_drop=0, weight_tying=False):
+    def __init__(self, ntoken, ninp, nhid, nlayers, dropout=0.4, dropout_h=0.3, dropout_i=0.65, dropout_e=0.1, weight_drop=0, weight_tying=False):
         super().__init__()
         self.ninp = ninp
         self.nhid = nhid
         self.nlayers = nlayers
         self.weight_tying = weight_tying
-        self.drop = nn.Dropout(dropout)
+        self.dropout = dropout
+        self.dropout_h = dropout_h
+        self.dropout_i = dropout_i
+        self.dropout_e = dropout_e
+        self.variational_dropout = VariationalDropout()
         self.encoder = nn.Embedding(ntoken, ninp)
         self.rnns = nn.ModuleList(
             [WeightDrop(nn.LSTM(self.get_input_size(i), self.get_hidden_size(i)), ["weight_hh_l0"], weight_drop) for i in range(nlayers)]
         )
-        self.decoder = nn.Linear(nhid, ntoken)
+        self.decoder = nn.Linear(ninp if weight_tying else nhid, ntoken)
         if self.weight_tying:
             self.decoder.weight = self.encoder.weight
         self.init_weights()
@@ -41,16 +47,19 @@ class WD_LSTM(nn.Module):
         self.decoder.weight.data.uniform_(-initrange, initrange)
 
     def forward(self, input, hiddens):
-        emb = self.drop(self.encoder(input))
+        emb = embedding_dropout(self.encoder, input, self.dropout_e if self.training else 0)
+        emb = self.variational_dropout(emb, self.dropout_i)
         outputs = []
         new_hiddens = []
         # LSTM module has been split up, since weight tying requires different hidden sizes.
         # Therefore we need to manage the forward propagation ourselves.
-        for rnn, hidden in zip(self.rnns, hiddens):  
+        for layer_num, (rnn, hidden) in enumerate(zip(self.rnns, hiddens)):
             output, new_hidden = rnn(emb if not outputs else outputs[-1], hidden)
+            if layer_num != self.nlayers - 1:  # Variational dropout on the recurrent layers
+                output = self.variational_dropout(output, self.dropout_h)
             outputs.append(output)
             new_hiddens.append(new_hidden)
-        output = self.drop(output)
+        output = self.variational_dropout(output, self.dropout)
         decoded = self.decoder(output)
         return decoded, new_hiddens
 
