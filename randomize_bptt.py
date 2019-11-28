@@ -8,7 +8,6 @@ def get_bptt_sequence_lengths(
     p,  # probability that mean sequence length remains unscaled
     s,  # standard deviation
     min_seq,  # minimum sequence length
-    max_seq   # maximum sequence length
 ):
     curr_index = 0
     while True:
@@ -16,7 +15,7 @@ def get_bptt_sequence_lengths(
         if random.random() > p:
             mean /= random_scaling
         seq_len = int(random.normal(mean, s))
-        seq_len = max(min(seq_len, max_seq), min_seq)
+        seq_len = max(seq_len, min_seq)
         if curr_index + seq_len >= n - 1:
             seq_len = n - 1 - curr_index
             yield curr_index - 1, seq_len, seq_len / seq
