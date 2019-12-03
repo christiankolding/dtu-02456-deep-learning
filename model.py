@@ -8,7 +8,7 @@ from embedding_dropout import embedding_dropout
 
 class WD_LSTM(nn.Module):
 
-    def __init__(self, ntoken, ninp, nhid, nlayers, dropout, dropout_h, dropout_i, dropout_e, weight_drop=0, weight_tying=False):
+    def __init__(self, ntoken, ninp, nhid, nlayers, dropout, dropout_h, dropout_i, dropout_e, weight_drop, weight_tying):
         super().__init__()
         self.ninp = ninp
         self.nhid = nhid
@@ -37,7 +37,7 @@ class WD_LSTM(nn.Module):
     def get_hidden_size(self, layer_num):
         """ The hidden size in the last LSTM layer must match the embedding size. """
         if layer_num == self.nlayers - 1:
-            return self.ninp
+            return self.ninp if self.weight_tying else self.nhid
         return self.nhid
         
     def init_weights(self):
@@ -48,20 +48,23 @@ class WD_LSTM(nn.Module):
 
     def forward(self, input, hiddens):
         emb = embedding_dropout(self.encoder, input, self.dropout_e if self.training else 0)
-        emb = self.variational_dropout(emb, self.dropout_i)
+        emb = self.variational_dropout(emb, self.dropout_i)  # TODO: Should I have both variational and embedding dropout? Probably not..
         outputs = []
+        dropped_outputs = []
         new_hiddens = []
         # LSTM module has been split up, since weight tying requires different hidden sizes.
         # Therefore we need to manage the forward propagation ourselves.
         for layer_num, (rnn, hidden) in enumerate(zip(self.rnns, hiddens)):
             output, new_hidden = rnn(emb if not outputs else outputs[-1], hidden)
-            if layer_num != self.nlayers - 1:  # Variational dropout on the recurrent layers
-                output = self.variational_dropout(output, self.dropout_h)
             outputs.append(output)
+            if layer_num != self.nlayers - 1:  # Variational dropout on the recurrent layers
+                output = self.variational_dropout(output, self.dropout_h)  # TODO: Should it be variational dropout here?!
+                dropped_outputs.append(output)
             new_hiddens.append(new_hidden)
         output = self.variational_dropout(output, self.dropout)
+        dropped_outputs.append(output)
         decoded = self.decoder(output)
-        return decoded, new_hiddens
+        return decoded, new_hiddens, outputs, dropped_outputs
 
     def init_hidden(self, bsz):
         weight = next(self.parameters())
