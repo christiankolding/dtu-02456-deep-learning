@@ -5,7 +5,7 @@ language_model_base:
     lr: 0.004
     weight_decay: 0.0000012
     clip: 0.25
-    epochs: 100
+    epochs: 60
     batch_size: 40
     eval_batch_size: 10
     test_batch_size: 1
@@ -24,11 +24,45 @@ language_model_base:
     save: 'model.pt'
     weight_drop: 0.5
 
+# results (30 epochs)
+# no regularization = 149.29
+# bptt seq len randomization = 134.08 
+# weight_drop = 117.79
+# dropout = 103.64
+# dropout_i = 101.82
+# dropout_h = 101.82  # NO EFFECT!!  102.37 after fix # WORSE!
+
+start_from_empty:
+    emsize: 400
+    nhid: 1150
+    nlayers: 3
+    lr: 0.001
+    weight_decay: 0.0000012
+    clip: 0.25
+    epochs: 30
+    batch_size: 40
+    eval_batch_size: 10
+    test_batch_size: 1
+    bptt_seq_len: 35
+    bptt_random_scaling: 2.0
+    bptt_p: 0.95  # bptt seq len randomization
+    bptt_s: 5  # bptt seq len randomization
+    bptt_min_len: 5  # dropout
+    dropout: 0.4
+    dropout_i: 0.4
+    dropout_e: 0 #0.1
+    dropout_h: 0.3
+    alpha: 0 #2
+    beta: 0 #1
+    weight_tying: false #true
+    save: 'model.pt'
+    weight_drop: 0.5  # weight_drop
+
 text_generation_base:
     checkpoint: 'model.pt'
     outf: 'generated.txt'
-    words: 1000
-    temperature: 1
+    words: 200
+    temperature: 0.8
     
 text_generation_beam_search:
     checkpoint: 'model.pt'

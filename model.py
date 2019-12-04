@@ -49,13 +49,15 @@ class WD_LSTM(nn.Module):
     def forward(self, input, hiddens):
         emb = embedding_dropout(self.encoder, input, self.dropout_e if self.training else 0)
         emb = self.variational_dropout(emb, self.dropout_i)  # TODO: Should I have both variational and embedding dropout? Probably not..
+        
         outputs = []
         dropped_outputs = []
         new_hiddens = []
         # LSTM module has been split up, since weight tying requires different hidden sizes.
         # Therefore we need to manage the forward propagation ourselves.
+        output = None
         for layer_num, (rnn, hidden) in enumerate(zip(self.rnns, hiddens)):
-            output, new_hidden = rnn(emb if not outputs else outputs[-1], hidden)
+            output, new_hidden = rnn(emb if output is None else output, hidden)
             outputs.append(output)
             if layer_num != self.nlayers - 1:  # Variational dropout on the recurrent layers
                 output = self.variational_dropout(output, self.dropout_h)  # TODO: Should it be variational dropout here?!
