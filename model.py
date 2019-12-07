@@ -48,7 +48,7 @@ class WD_LSTM(nn.Module):
 
     def forward(self, input, hiddens):
         emb = embedding_dropout(self.encoder, input, self.dropout_e if self.training else 0)
-        emb = self.variational_dropout(emb, self.dropout_i)  # TODO: Should I have both variational and embedding dropout? Probably not..
+        emb = self.variational_dropout(emb, self.dropout_i)
         
         outputs = []
         dropped_outputs = []
@@ -60,7 +60,7 @@ class WD_LSTM(nn.Module):
             output, new_hidden = rnn(emb if output is None else output, hidden)
             outputs.append(output)
             if layer_num != self.nlayers - 1:  # Variational dropout on the recurrent layers
-                output = self.variational_dropout(output, self.dropout_h)  # TODO: Should it be variational dropout here?!
+                output = self.variational_dropout(output, self.dropout_h)
                 dropped_outputs.append(output)
             new_hiddens.append(new_hidden)
         output = self.variational_dropout(output, self.dropout)
