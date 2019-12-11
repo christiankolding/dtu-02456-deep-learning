@@ -18,8 +18,34 @@ language_model_base:
     dropout_i: 0.4
     dropout_e: 0.1
     dropout_h: 0.3
-    alpha: 0.2  #2
-    beta: 0.1  #1
+    alpha: 0.2
+    beta: 0.1
+    weight_tying: true
+    save: 'model.pt'
+    weight_drop: 0.5
+
+language_model_wt2:
+    emsize: 400
+    nhid: 1150
+    nlayers: 3
+    lr: 0.001
+    weight_decay: 0.0000012
+    clip: 0.25
+    epochs: 100
+    batch_size: 80
+    eval_batch_size: 10
+    test_batch_size: 1
+    bptt_seq_len: 35
+    bptt_random_scaling: 2.0
+    bptt_p: 0.95
+    bptt_s: 5
+    bptt_min_len: 5
+    dropout: 0.4
+    dropout_i: 0.65
+    dropout_e: 0.1
+    dropout_h: 0.2
+    alpha: 0.2
+    beta: 0.1
     weight_tying: true
     save: 'model.pt'
     weight_drop: 0.5
